@@ -1,0 +1,22 @@
+name: PointManager
+version: 1.0
+description: A plugin for sharing LGWF results with LGW.
+author: Be4rJP
+
+#-------------------------------------------------------------------------------
+
+main: be4r.lgwf.pointmanager.Main
+
+#-------------------------------------------------------------------------------
+
+commands:
+    lpm:
+        description: For admin.
+        usage: '[§6PointManager§r] §bType §6/lpm help §bfor help.'
+        permission-message: §cYou don't have permission.
+
+#-------------------------------------------------------------------------------
+
+permissions:
+    lpm.admin:
+        description: lpm command.

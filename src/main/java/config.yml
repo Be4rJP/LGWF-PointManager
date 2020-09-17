@@ -1,0 +1,14 @@
+MySQL:
+  host: 
+  port: 
+  database: 
+  table: 
+  user: 
+  password: 
+
+debug: false
+mode: lgw
+
+item:
+  material: PAPER
+  name: 交換用チケット
