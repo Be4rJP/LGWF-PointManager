@@ -36,18 +36,36 @@ public class lpmCommand {
                     
                     //send message
                     if(type == CommanderType.ADMIN && player != null)
-                        PMMessage.sendMessage("§aYou have succeeded in giving the player " + String.valueOf(givePoint) + " points.", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§aプレイヤーに §e" + String.valueOf(givePoint) + "§a ポイントを与えることに成功しました。", MessageType.PLAYER, player);
                     if(type == CommanderType.CONSOLE)
                         PMMessage.sendMessage("You have succeeded in giving the player " + String.valueOf(givePoint) + " points.", MessageType.CONSOLE);
 
                     //playsound
                     if(type == CommanderType.ADMIN && player != null)
                         PMSound.playPMSound(player, SoundType.SUCCESS);
+                    
+                    BukkitRunnable task1 = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            for(Player p : Main.getPlugin().getServer().getOnlinePlayers()){
+                                if(p.getUniqueId().toString().replaceAll("-", "").equals(uuid)){
+                                    if(!player.getUniqueId().toString().replaceAll("-", "").equals(uuid)){
+                                        if(givePoint >= 0){
+                                            PMMessage.sendMessage("§e " + String.valueOf(givePoint) + "§a ポイントを受け取りました。", MessageType.PLAYER, p);
+                                            PMSound.playPMSound(p, SoundType.CONGRATULATIONS);
+                                        }else
+                                            PMMessage.sendMessage("§e " + String.valueOf(givePoint * -1) + "§a ポイントを取り上げられました。", MessageType.PLAYER, p);
+                                    }
+                                }
+                            }      
+                        }
+                    };
+                    task1.runTask(Main.getPlugin());
 
                 } catch (SQLException e) {//------------Error message-----------
                         //send message
                         if(type == CommanderType.ADMIN && player != null){
-                            PMMessage.sendMessage("§cError!!! You failed to give the player any points.", MessageType.PLAYER, player);
+                            PMMessage.sendMessage("§c！！！プレイヤーにポイントを与えることに失敗しました！！！", MessageType.PLAYER, player);
                             PMMessage.sendMessage("§cSQL State: " + e.getSQLState(), MessageType.PLAYER, player);
                             PMMessage.sendMessage("§c" + e.getMessage(), MessageType.PLAYER, player);
                         }
@@ -77,8 +95,8 @@ public class lpmCommand {
                 String uuid = UUID.getUuid(name);
                 if(uuid.length() != 32){
                     if(type == CommanderType.ADMIN && player != null){
-                        PMMessage.sendMessage("§cError!!! You failed to give the player any points.", MessageType.PLAYER, player);
-                        PMMessage.sendMessage("§cFailed to get the player's information.", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§c！！！プレイヤーのUUID情報の取得に失敗しました！！！", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§c間違ったIDが指定された可能性があります。", MessageType.PLAYER, player);
                     }
                     if(type == CommanderType.CONSOLE){
                         PMMessage.sendMessage("Error!!! You failed to give the player any points.", MessageType.CONSOLE);
@@ -108,9 +126,9 @@ public class lpmCommand {
                     //send message
                     if(player != null){
                         if(uuid.equals(player.getUniqueId().toString().replaceAll("-", "")))
-                            PMMessage.sendMessage("§aYou have " + String.valueOf(point) + " points.", MessageType.PLAYER, player);
+                            PMMessage.sendMessage("§aあなたは §e" + String.valueOf(point) + "§a ポイントを所持しています。", MessageType.PLAYER, player);
                         else
-                            PMMessage.sendMessage("§aThey have " + String.valueOf(point) + " points.", MessageType.PLAYER, player);
+                            PMMessage.sendMessage("§aそのプレイヤーは §e" + String.valueOf(point) + "§a ポイントを所持しています。", MessageType.PLAYER, player);
                     }
                     if(type == CommanderType.CONSOLE)
                         PMMessage.sendMessage("They have " + String.valueOf(point) + " points.", MessageType.CONSOLE);
@@ -122,7 +140,7 @@ public class lpmCommand {
                 } catch (SQLException e) {//------------Error message-----------
                         //send message
                         if(player != null){
-                            PMMessage.sendMessage("§cError!!! You failed to get the points.", MessageType.PLAYER, player);
+                            PMMessage.sendMessage("§c！！！ポイントの取得に失敗しました！！！", MessageType.PLAYER, player);
                             PMMessage.sendMessage("§cSQL State: " + e.getSQLState(), MessageType.PLAYER, player);
                             PMMessage.sendMessage("§c" + e.getMessage(), MessageType.PLAYER, player);
                         }
@@ -152,8 +170,8 @@ public class lpmCommand {
                 String uuid = UUID.getUuid(name);
                 if(uuid.length() != 32){
                     if(player != null){
-                        PMMessage.sendMessage("§cError!!! You failed to get the points.", MessageType.PLAYER, player);
-                        PMMessage.sendMessage("§cFailed to get the player's information.", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§c！！！プレイヤーのUUID情報の取得に失敗しました！！！", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§c間違ったIDが指定された可能性があります。", MessageType.PLAYER, player);
                     }
                     if(type == CommanderType.CONSOLE){
                         PMMessage.sendMessage("Error!!! You failed to get the points.", MessageType.CONSOLE);
@@ -191,12 +209,12 @@ public class lpmCommand {
                     int point = SQLDriverManager.getPlayerPoint(uuid);
                     
                     if(point == 0){
-                        PMMessage.sendMessage("§bYou have no points.", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§bあなたはポイントを所持していません。", MessageType.PLAYER, player);
                         PMSound.playPMSound(player, SoundType.ERROR);
                         return;
                     }
                     if(emptySlots == 0){
-                        PMMessage.sendMessage("§bThere is not enough space to receive the items.", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§bインベントリにアイテムを受け取るための十分なスペースがありません。", MessageType.PLAYER, player);
                         PMSound.playPMSound(player, SoundType.ERROR);
                         return;
                     }
@@ -207,9 +225,10 @@ public class lpmCommand {
                         @Override
                         public void run() {
                             ItemStack itemStack = Main.item;
-                            itemStack.setAmount(emptySlots >= point ? point : emptySlots);
+                            int IPoint = emptySlots >= point ? point : emptySlots;
+                            itemStack.setAmount(IPoint);
                             player.getInventory().addItem(itemStack);
-                            PMMessage.sendMessage("§bYou have successfully exchanged your points for items.", MessageType.PLAYER, player);
+                            PMMessage.sendMessage("§e " + IPoint + "§b ポイントのアイテム化に成功しました。", MessageType.PLAYER, player);
                             PMSound.playPMSound(player, SoundType.CONGRATULATIONS);
                         }
                     };
@@ -217,7 +236,7 @@ public class lpmCommand {
                     
                 } catch (SQLException e) {//------------Error message-----------
                         //send message
-                        PMMessage.sendMessage("§cError!!! Failed to change the player any points.", MessageType.PLAYER, player);
+                        PMMessage.sendMessage("§c！！！プレイヤーのポイントを変更することに失敗しました！！！", MessageType.PLAYER, player);
                         PMMessage.sendMessage("§cSQL State: " + e.getSQLState(), MessageType.PLAYER, player);
                         PMMessage.sendMessage("§c" + e.getMessage(), MessageType.PLAYER, player);
 
@@ -242,7 +261,8 @@ public class lpmCommand {
                 String R_uuid = UUID.getUuid(receiver);
                 if(S_uuid.length() != 32 || R_uuid.length() != 32){
                     //send message
-                    PMMessage.sendMessage("§cFailed to get the player's information.", MessageType.PLAYER, sender);
+                    PMMessage.sendMessage("§c！！！プレイヤーのUUID情報の取得に失敗しました！！！", MessageType.PLAYER, sender);
+                    PMMessage.sendMessage("§c間違ったIDが指定された可能性があります。", MessageType.PLAYER, sender);
                     //playsound
                     PMSound.playPMSound(sender, SoundType.ERROR);
                     
@@ -253,7 +273,7 @@ public class lpmCommand {
                     int S_point = SQLDriverManager.getPlayerPoint(S_uuid);
                     
                     if(S_point == 0){
-                        PMMessage.sendMessage("§bYou have no points.", MessageType.PLAYER, sender);
+                        PMMessage.sendMessage("§bあなたはポイントを所持していません。", MessageType.PLAYER, sender);
                         PMSound.playPMSound(sender, SoundType.ERROR);
                         return;
                     }
@@ -267,7 +287,7 @@ public class lpmCommand {
                     SQLDriverManager.addPlayerPoint(R_uuid, point);
                     
                     //send message
-                    PMMessage.sendMessage("§aYou have successfully transferred " + String.valueOf(point) + " points to a player.", MessageType.PLAYER, sender);
+                    PMMessage.sendMessage("§a" + receiver + " に §e" + String.valueOf(point) + "§a ポイントを送信しました。", MessageType.PLAYER, sender);
                     
                     //playsound
                     PMSound.playPMSound(sender, SoundType.SUCCESS);
@@ -277,7 +297,7 @@ public class lpmCommand {
                         public void run() {
                             for(Player player : Main.getPlugin().getServer().getOnlinePlayers()){
                                 if(player.getName().equals(receiver)){
-                                    PMMessage.sendMessage("§bYou have received " + String.valueOf(point) + " points from " + sender.getName() + ".", MessageType.PLAYER, player);
+                                    PMMessage.sendMessage("§b" + sender.getName() + " から §e" + String.valueOf(point) + "§a ポイントを受け取りました。.", MessageType.PLAYER, player);
                                     PMSound.playPMSound(player, SoundType.CONGRATULATIONS);
                                 }
                             }      
@@ -287,7 +307,7 @@ public class lpmCommand {
 
                 } catch (SQLException e) {//------------Error message-----------
                         //send message
-                        PMMessage.sendMessage("§cError!!! You have failed to transfer points to a player.", MessageType.PLAYER, sender);
+                        PMMessage.sendMessage("§c！！！ポイントの送信に失敗しました！！！", MessageType.PLAYER, sender);
                         PMMessage.sendMessage("§cSQL State: " + e.getSQLState(), MessageType.PLAYER, sender);
                         PMMessage.sendMessage("§c" + e.getMessage(), MessageType.PLAYER, sender);
                         //playsound

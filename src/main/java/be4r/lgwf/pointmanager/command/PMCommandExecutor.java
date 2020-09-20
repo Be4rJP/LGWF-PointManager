@@ -78,7 +78,7 @@ public class PMCommandExecutor implements CommandExecutor, TabExecutor {
                         if(!Main.isNumber(args[2])) return false;
                         if(Integer.parseInt(args[2]) <= 0) return false;
                         if(((Player)sender).getName().endsWith(args[1])){
-                            PMMessage.sendMessage("§cYour own name is not accepted.", MessageType.PLAYER, (Player)sender);
+                            PMMessage.sendMessage("§c自分自身は指定できません。", MessageType.PLAYER, (Player)sender);
                             PMSound.playPMSound((Player)sender, SoundType.ERROR);
                             return true;
                         }

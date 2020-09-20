@@ -2,10 +2,8 @@ package be4r.lgwf.pointmanager.sql;
 
 
 import be4r.lgwf.pointmanager.Main;
-import java.sql.SQLException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  *
