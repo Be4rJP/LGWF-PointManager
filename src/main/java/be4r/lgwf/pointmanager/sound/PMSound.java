@@ -20,7 +20,7 @@ public class PMSound {
                 break;
             case SUCCESS:
                 if(!Main.SOUND_SUCCESS) return;
-                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1F, 2F);
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1F, 2F);
                 break;
             case CONGRATULATIONS:
                 if(!Main.SOUND_CONGRATULATIONS) return;
